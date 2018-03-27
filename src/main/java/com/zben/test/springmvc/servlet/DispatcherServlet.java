@@ -34,19 +34,19 @@ public class DispatcherServlet extends HttpServlet {
     //扫描的基包
     private String basePackage = "";
 
-    //基包下面所有的带包路径全限定类名
+    //基包下面所有的带包路径全限定类名["com.zben.test.springmvc.annotation.Controller",....]
     private List<String> packageNames = new ArrayList<String>();
 
-    //注解实例化 注解上的名称：实例化对象
+    //注解实例化 注解上的名称：实例化对象    {"userController",UserController}
     private Map<String, Object> instanceMap = new HashMap<String, Object>();
 
-    //带包路径的全限定类名： 注解上的名称
+    //带包路径的全限定类名： 注解上的名称 {"com.zben.test.springmvc.annotation.Controller", "userController"}
     private Map<String, String> nameMap = new HashMap<String, String>();
 
-    //URL地址和方法的映射关系 springMvc就是方法调用链
+    //URL地址和方法的映射关系 springMvc就是方法调用链  {"/user/add",method}
     private Map<String, Method> urlMethodMap = new HashMap<String, Method>();
 
-    //Method和全限定类名映射关系  主要是为了通过Method找到该方法的对象利用反射执行
+    //Method和全限定类名映射关系  主要是为了通过Method找到该方法的对象利用反射执行  {method, "com.zben.test.springmvc.annotation.Controller"}
     private Map<Method, String> methodPackageMap = new HashMap<Method, String>();
 
 
@@ -102,15 +102,15 @@ public class DispatcherServlet extends HttpServlet {
         if (packageNames.size() < 1) {
             return;
         }
-
+        //packageNames: [com.zben.test.springmvc.annotation.Controller,...,...]
         for (String string : packageNames) {
             Class clazz = Class.forName(string);
             if (clazz.isAnnotationPresent(Controller.class)) {
                 Controller controller = (Controller) clazz.getAnnotation(Controller.class);
                 String controllerName = controller.value();
 
-                instanceMap.put(controllerName, clazz.newInstance());
-                nameMap.put(string, controllerName);
+                instanceMap.put(controllerName, clazz.newInstance());   // {"userController",UserController}
+                nameMap.put(string, controllerName);                    //
                 System.out.println("Controller : " + string + " , value : " + controller.value());
             } else if (clazz.isAnnotationPresent(Service.class)) {
                 Service service = (Service) clazz.getAnnotation(Service.class);
@@ -163,8 +163,8 @@ public class DispatcherServlet extends HttpServlet {
                     if (method.isAnnotationPresent(RequestMapping.class)) {
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         baseUrl.append(requestMapping.value());
-                        urlMethodMap.put(baseUrl.toString(), method);
-                        methodPackageMap.put(method, string);
+                        urlMethodMap.put(baseUrl.toString(), method);   // {"/user/add",method}
+                        methodPackageMap.put(method, string);//{method, ""}
                     }
                 }
             }
